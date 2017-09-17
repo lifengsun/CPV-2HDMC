@@ -557,7 +557,7 @@ class SM {
   double m_alpha;
   double m_alpha0;
   double m_GF;
-  double m_s2tW;
+  double m_s2tW;		/* unused. */
   double m_alpha_s;
   double m_md_p[3];
   double m_mu_p[3];

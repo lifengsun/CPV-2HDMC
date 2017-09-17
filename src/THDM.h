@@ -31,7 +31,7 @@ using namespace std;
 */
 //static int thdmc_set_param(int key, int npara, double *para, double *res);
 
-int thdmc_set_param(int key, double smpara[], double para[], double res[], int slha);
+int thdmc_set_param(int key, double smpara[], complex<double> para[], int type, double res[], int slha);
 
 class THDM {
 
@@ -85,8 +85,8 @@ class THDM {
   * @returns Boolean \a true if all parameters were set correctly, \a false otherwise
   */
   bool set_param_gen(double lambda1, double lambda2, double lambda3,
-                     double lambda4, double lambda5, double lambda6, 
-                     double lambda7, double m12_2, double tan_beta);
+                     double lambda4, complex<double> lambda5, double lambda6, 
+                     double lambda7, complex<double> m12_2, double tan_beta);
 
   /** 
   * @brief Specifies 2HDM in the Higgs basis
@@ -107,7 +107,7 @@ class THDM {
   * @returns Boolean \a true if all parameters were set correctly, \a false otherwise
   */
   bool set_param_higgs(double Lambda1, double Lambda2, double Lambda3,
-                       double Lambda4, double Lambda5, double Lambda6, 
+                       double Lambda4, complex<double> Lambda5, double Lambda6,
                        double Lambda7, double m_Hp);
 
   /** 
@@ -123,7 +123,7 @@ class THDM {
   * 
   * @returns Boolean \a true if all parameters were set correctly, \a false otherwise
   */
-  bool set_param_hybrid(double mh, double mH, double cba, double Z4,double Z5, double Z7, double tanb);
+  bool set_param_hybrid(double mh, double mH, double cba, double Z4, complex<double> Z5, double Z7, double tanb);
 
   /** 
   * @brief Specifies 2HDM in the hybrid basis of 1507.04281, but with sba instead of cba
@@ -138,7 +138,7 @@ class THDM {
   * 
   * @returns Boolean \a true if all parameters were set correctly, \a false otherwise
   */
-  bool set_param_hybrid_sba(double mh, double mH, double sba, double Z4,double Z5, double Z7, double tanb);
+  bool set_param_hybrid_sba(double mh, double mH, double sba, double Z4, complex<double> Z5, double Z7, double tanb);
 
   /** 
   * @brief Specifies 2HDM using potential from the Higgs Hunter's Guide
@@ -159,7 +159,7 @@ class THDM {
   * @returns Boolean \a true if all parameters were set correctly, \a false otherwise
   */
   bool set_param_HHG(double lambda1, double lambda2, double lambda3,
-                     double lambda4, double lambda5, double lambda6, 
+                     double lambda4, complex<double> lambda5, double lambda6,
                      double tan_beta);
 
   /** 
@@ -183,7 +183,7 @@ class THDM {
   */
   bool set_param_phys(double m_h,double m_H, double m_A, double m_Hp,
                       double sba, double lambda6, double lambda7,
-                      double m12_2, double tan_beta);
+                      complex<double> m12_2, double tan_beta);
 
   bool set_param_sm(double mh);
 
@@ -259,8 +259,8 @@ class THDM {
   * @param tan_beta Returned value of \f$ \tan\beta \f$ 
   */
   void get_param_gen(double &lambda1, double &lambda2, double &lambda3,
-                     double &lambda4, double &lambda5, double &lambda6, 
-                     double &lambda7, double &m12_2,   double &tan_beta);
+                     double &lambda4, complex<double> &lambda5, double &lambda6, 
+                     double &lambda7, complex<double> &m12_2,   double &tan_beta);
 
 
   /**
@@ -279,11 +279,11 @@ class THDM {
   * @param m_Hp    Returned value of the charged Higgs mass
   */
   void get_param_higgs(double &Lambda1, double &Lambda2, double &Lambda3,
-                       double &Lambda4, double &Lambda5, double &Lambda6, 
+                       double &Lambda4, complex<double> &Lambda5, double &Lambda6, 
                        double &Lambda7, double &m_Hp);
 
   void get_param_hybrid(double &m_h, double &m_H, double &sba,
-                        double &Z4, double &Z5, double &Z7, double &tan_beta);
+                        double &Z4, complex<double> &Z5, double &Z7, double &tan_beta);
 
 
   /**
@@ -302,7 +302,7 @@ class THDM {
   * @param tan_beta Returned value of \f$ \tan\beta \f$ 
   */
   void get_param_HHG(double &lambda1, double &lambda2, double &lambda3,
-                     double &lambda4, double &lambda5, double &lambda6, 
+                     double &lambda4, complex<double> &lambda5, double &lambda6, 
                      double &tan_beta);
 
 
@@ -324,7 +324,7 @@ class THDM {
   */
   void get_param_phys(double &m_h,double &m_H, double &m_A, double &m_Hp,
                       double &sba, double &lambda6, double &lambda7,
-                      double &m12_2, double &tan_beta);
+                      complex<double> &m12_2, double &tan_beta);
 
 
   /**
@@ -853,7 +853,8 @@ class THDM {
   const static double EPS = 1E-12;
 
  private:
-  double      lambda[8];
+  double      lambda[8];	/* DO NOT use lambda[5] */
+  complex<double> lambda5;
   double      beta;
   double      m22_2;
   double      sinba;
@@ -874,7 +875,7 @@ class THDM {
   SM sm;
   
   void init();  
-  double get_m12_2();
+  complex<double> get_m12_2();
   void set_kappa();
   void set_kappa_D();
   void set_kappa_U();

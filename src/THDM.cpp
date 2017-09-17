@@ -42,7 +42,7 @@ using namespace std;
 * key = 4: Hybrid basis with cba (mh, mH, cba, Z4, Z5, Z7, tb)
 *
 ***************************************************************************/
-int thdmc_set_param(int key, double smpara[nsmpara], double para[npara], double res[nres], int slha) {
+int thdmc_set_param(int key, double smpara[nsmpara], complex<double> para[], int type, double res[nres], int slha) {
 
 /*
    cout << "Key="<< key << endl;
@@ -69,81 +69,63 @@ int thdmc_set_param(int key, double smpara[nsmpara], double para[npara], double 
    sm.set_qmass_pole(6,smpara[5]);
    
    model->set_SM(sm);
+   bool ok = false;
 
-   int type = 0;
-   
  if (key==1) {
+   double lam1 = real(para[0]);
+   double lam2 = real(para[1]);
+   double lam3 = real(para[2]);
+   double lam4 = real(para[3]);
+   complex<double> lam5 = para[4];
+   double lam6 = real(para[5]);
+   double lam7 = real(para[6]);
+   complex<double> m12_2 = para[7];
+   double tb   = real(para[8]);
    
-   double lam1 = para[0];
-   double lam2 = para[1];
-   double lam3 = para[2];
-   double lam4 = para[3];
-   double lam5 = para[4];
-   double lam6 = para[5];
-   double lam7 = para[6];
-   double m12_2 = para[7];
-   double tb = para[8];
-   type = (int)para[9];
-   
-   bool ok = model->set_param_gen(lam1,lam2,lam3,lam4,lam5,lam6,lam7,m12_2,tb);
-   
-   if (!ok) return -1;
-   model->set_yukawas_type(type);	
+   ok = model->set_param_gen(lam1,lam2,lam3,lam4,lam5,lam6,lam7,m12_2,tb);
  } else if (key==2) {
- 
-   double mh = para[0];
-   double mH = para[1];
-   double mA = para[2];
-   double mC = para[3];
-   double sba = para[4];
-   double lam6 = para[5];
-   double lam7 = para[6];
-   double m12_2 = para[7];
-   double tb = para[8];
-   type = (int)para[9];
+   double mh = real(para[0]);
+   double mH = real(para[1]);
+   double mA = real(para[2]);
+   double mC = real(para[3]);
+   double sba = real(para[4]);
+   double lam6 = real(para[5]);
+   double lam7 = real(para[6]);
+   double m12_2 = real(para[7]);
+   double tb = real(para[8]);
    
-   bool ok = model->set_param_phys(mh,mH,mA,mC,sba,lam6,lam7,m12_2,tb);
-   if (!ok) return -1;
-   model->set_yukawas_type(type);	 
- 
+   ok = model->set_param_phys(mh,mH,mA,mC,sba,lam6,lam7,m12_2,tb);
  } else if (key==3) {
-  
-   double mh = para[0];
-   double mH = para[1];
-   double sba = para[2];
-   double tb = para[3];
-   double Z4 = para[4];
-   double Z5 = para[5];
-   double Z7 = para[6];
-   type = (int)para[9];
+   double mh = real(para[0]);
+   double mH = real(para[1]);
+   double sba = real(para[2]);
+   double tb = real(para[3]);
+   double Z4 = real(para[4]);
+   double Z5 = real(para[5]);
+   double Z7 = real(para[6]);
 
-   bool ok = model->set_param_hybrid_sba(mh,mH,sba,Z4,Z5,Z7,tb);
-   if (!ok) return -1;
-   model->set_yukawas_type(type);
-     
+   ok = model->set_param_hybrid_sba(mh,mH,sba,Z4,Z5,Z7,tb);
  } else if (key==4) {
-  
-   double mh = para[0];
-   double mH = para[1];
-   double cba = para[2];
-   double tb = para[3];
-   double Z4 = para[4];
-   double Z5 = para[5];
-   double Z7 = para[6];
-   type = (int)para[9];
+   double mh = real(para[0]);
+   double mH = real(para[1]);
+   double cba = real(para[2]);
+   double tb = real(para[3]);
+   double Z4 = real(para[4]);
+   double Z5 = real(para[5]);
+   double Z7 = real(para[6]);
 
-   bool ok = model->set_param_hybrid(mh,mH,cba,Z4,Z5,Z7,tb);
-   if (!ok) return -1;
-   model->set_yukawas_type(type);
-     
- } else {
-  return -1;
+   ok = model->set_param_hybrid(mh,mH,cba,Z4,Z5,Z7,tb);
  }
+
+   if (!ok) return -1;
+
+   model->set_yukawas_type(type);
 
 //   model->print_param_gen(); 
 //   model->print_param_phys();
   
-   double mh,mH,mA,mC,sba,l6,l7,m12_2,tb;
+   double mh,mH,mA,mC,sba,l6,l7,tb;
+   complex<double> m12_2;
   
    model->get_param_phys(mh,mH,mA,mC,sba,l6,l7,m12_2,tb);
   
@@ -222,8 +204,8 @@ void THDM::init() {
 
 
 bool THDM::set_param_gen(double lambda1, double lambda2, double lambda3,
-			 double lambda4, double lambda5, double lambda6, 
-			 double lambda7, double m12_2, double tan_beta) {
+			 double lambda4, complex<double> lambda5, double lambda6,
+			 double lambda7, complex<double> m12_2, double tan_beta) {
 
   // tan(beta) must be greater than 0 for valid basis
   if (tan_beta<=0) {
@@ -237,7 +219,7 @@ bool THDM::set_param_gen(double lambda1, double lambda2, double lambda3,
   lambda[2] = lambda2;
   lambda[3] = lambda3;
   lambda[4] = lambda4;
-  lambda[5] = lambda5;
+  lambda5 = lambda5;
   lambda[6] = lambda6;
   lambda[7] = lambda7;
   beta = atan(tan_beta);
@@ -252,17 +234,18 @@ bool THDM::set_param_gen(double lambda1, double lambda2, double lambda3,
   double c2b = cb2-sb2;
   double s3b = 3.*sb-4.*sb*sb2;
   double c3b = 4.*cb*cb2-3.*cb;
-  
-  m22_2 = m12_2*ctb-0.5*v2*(lambda[2]*sb2+(lambda[3]+lambda[4]+lambda[5])*cb2+lambda[6]*cb2*ctb+3.*lambda[7]*sb*cb);  
+
+  // TODO: fix following formulas.
+  // m22_2 = m12_2*ctb-0.5*v2*(lambda[2]*sb2+(lambda[3]+lambda[4]+lambda5)*cb2+lambda[6]*cb2*ctb+3.*lambda[7]*sb*cb);
 
   // Mass of CP-odd Higgs
-  double mA_2 = m12_2/(sb*cb)-0.5*v2*(2.*lambda5+lambda6*ctb+lambda7*tb);
+  // double mA_2 = m12_2/(sb*cb)-0.5*v2*(2.*lambda5+lambda6*ctb+lambda7*tb);
 
-  double lambda345 = lambda3+lambda4+lambda5;
-  double lhat = 0.5*s2b*(lambda1*cb2-lambda2*sb2-lambda345*c2b)-lambda6*cb*c3b-lambda7*sb*s3b;
-  double lA = c2b*(lambda1*cb2-lambda2*sb2)+lambda345*s2b*s2b-lambda5+2.*lambda6*cb*s3b-2.*lambda7*sb*c3b;
-  double s2ba = 2.*lhat*v2;
-  double c2ba = -(mA_2 - lA*v2);
+  double lambda345 = lambda3+lambda4+real(lambda5);
+  // double lhat = 0.5*s2b*(lambda1*cb2-lambda2*sb2-lambda345*c2b)-lambda6*cb*c3b-lambda7*sb*s3b;
+  // double lA = c2b*(lambda1*cb2-lambda2*sb2)+lambda345*s2b*s2b-lambda5+2.*lambda6*cb*s3b-2.*lambda7*sb*c3b;
+  double s2ba = 0; // = 2.*lhat*v2;
+  double c2ba = 0; // = -(mA_2 - lA*v2);
   // Check case with degenerate h, H
   if ((abs(s2ba)>sqrt(DBL_EPSILON))||(abs(c2ba)>sqrt(DBL_EPSILON))) {
     double bma = 0.5*atan2(s2ba,c2ba);
@@ -278,7 +261,7 @@ bool THDM::set_param_gen(double lambda1, double lambda2, double lambda3,
 
 
 bool THDM::set_param_HHG(double Lambda1, double Lambda2, double Lambda3,
-			 double Lambda4, double Lambda5, double Lambda6, 
+			 double Lambda4, complex<double> Lambda5, double Lambda6,
 			 double tan_beta) {
 
   if (tan_beta<=0) {
@@ -291,13 +274,14 @@ bool THDM::set_param_HHG(double Lambda1, double Lambda2, double Lambda3,
   l1 = 2.*(Lambda1+Lambda3);
   l2 = 2.*(Lambda2+Lambda3);
   l3 = 2.*Lambda3+Lambda4;
-  l4 = -Lambda4+0.5*(Lambda5+Lambda6);
-  l5 = 0.5*(Lambda5-Lambda6);
+  // FIXME
+  // l4 = -Lambda4+0.5*(Lambda5+Lambda6);
+  // l5 = 0.5*(Lambda5-Lambda6);
   l6 = 0.;
   l7 = 0.;
 
   double beta = atan(tan_beta);
-  m12_2 = sm.get_v2()*sin(beta)*cos(beta)*Lambda5;
+  // m12_2 = sm.get_v2()*sin(beta)*cos(beta)*Lambda5;
 
   return set_param_gen(l1,l2,l3,l4,l5,l6,l7,m12_2,tan_beta);
 }
@@ -305,7 +289,7 @@ bool THDM::set_param_HHG(double Lambda1, double Lambda2, double Lambda3,
 
 bool THDM::set_param_phys(double m_h,double m_H, double m_A, double m_Hp,
 			  double sba, double lambda6, double lambda7,
-			  double m12_2,double tan_beta) {
+			  complex<double> m12_2, double tan_beta) {
 
   if (m_h>m_H) {
     cerr << "WARNING: Cannot set physical masses such that m_H < m_h\n"; 
@@ -337,13 +321,14 @@ bool THDM::set_param_phys(double m_h,double m_H, double m_A, double m_Hp,
   double ca2 = ca*ca;
 
   double cba = sqrt(1.-sba*sba);
- 
-  lambda[1]=(m_H*m_H*ca2+m_h*m_h*sa2-m12_2*tb)/v2/cb2-1.5*lambda6*tb+0.5*lambda7*tb*tb*tb;
-  lambda[2]=(m_H*m_H*sa2+m_h*m_h*ca2-m12_2*ctb)/v2/sb2+0.5*lambda6*ctb*ctb*ctb-1.5*lambda7*ctb;
-  lambda[3]=((m_H*m_H-m_h*m_h)*ca*sa+2.*m_Hp*m_Hp*sb*cb-m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-  lambda[4]=((m_A*m_A-2.*m_Hp*m_Hp)*cb*sb+m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-  lambda[5]=(m12_2-m_A*m_A*sb*cb)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
-  m22_2 = -0.5/sb*(pow(m_h,2)*ca*sba+pow(m_H,2)*sa*cba)+m12_2*ctb;
+
+  // FIXME
+  // lambda[1]=(m_H*m_H*ca2+m_h*m_h*sa2-m12_2*tb)/v2/cb2-1.5*lambda6*tb+0.5*lambda7*tb*tb*tb;
+  // lambda[2]=(m_H*m_H*sa2+m_h*m_h*ca2-m12_2*ctb)/v2/sb2+0.5*lambda6*ctb*ctb*ctb-1.5*lambda7*ctb;
+  // lambda[3]=((m_H*m_H-m_h*m_h)*ca*sa+2.*m_Hp*m_Hp*sb*cb-m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
+  // lambda[4]=((m_A*m_A-2.*m_Hp*m_Hp)*cb*sb+m12_2)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
+  // lambda[5]=(m12_2-m_A*m_A*sb*cb)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
+  // m22_2 = -0.5/sb*(pow(m_h,2)*ca*sba+pow(m_H,2)*sa*cba)+m12_2*ctb;
   sinba = sba;
 
   params_set=true;
@@ -353,7 +338,7 @@ bool THDM::set_param_phys(double m_h,double m_H, double m_A, double m_Hp,
 
 
 bool THDM::set_param_higgs(double Lambda1, double Lambda2, double Lambda3,
-			   double Lambda4, double Lambda5, double Lambda6, 
+			   double Lambda4, complex<double> Lambda5, double Lambda6,
 			   double Lambda7, double m_Hp) {
 
   if (m_Hp<0) {
@@ -365,16 +350,18 @@ bool THDM::set_param_higgs(double Lambda1, double Lambda2, double Lambda3,
   lambda[2]=Lambda2;
   lambda[3]=Lambda3;
   lambda[4]=Lambda4;
-  lambda[5]=Lambda5;
+  // lambda[5]=Lambda5;
+  lambda5 = Lambda5;
   lambda[6]=Lambda6;
   lambda[7]=Lambda7;
   beta=0;
   m22_2=m_Hp*m_Hp-0.5*v2*Lambda3;
 
-  double m_A2 = m_Hp*m_Hp-0.5*v2*(Lambda5-Lambda4);
+  // FIXME
+  double m_A2 = 0; // = m_Hp*m_Hp-0.5*v2*(Lambda5-Lambda4);
   
   double s2ba = -2.*Lambda6*v2;
-  double c2ba = -(m_A2+(Lambda5-Lambda1)*v2);
+  double c2ba = 0; // = -(m_A2+(Lambda5-Lambda1)*v2);
   // Handle special case with degenerate masses
   if ((abs(s2ba)>sqrt(DBL_EPSILON))||(abs(c2ba)>sqrt(DBL_EPSILON))) {
     double bma  =  0.5*atan2(s2ba,c2ba);
@@ -391,7 +378,7 @@ bool THDM::set_param_higgs(double Lambda1, double Lambda2, double Lambda3,
 
 // Hybrid basis from 1507.04281
 bool THDM::set_param_hybrid(double mh, double mH, double cba, double Z4,
-			   double Z5, double Z7, double tanb) {
+			    complex<double> Z5, double Z7, double tanb) {
 
   bool params_set = true;
 
@@ -415,10 +402,10 @@ bool THDM::set_param_hybrid(double mh, double mH, double cba, double Z4,
 
 // Hybrid basis from 1507.04281 (but with sba as the input) 
 bool THDM::set_param_hybrid_sba(double mh, double mH, double sba, double Z4,
-			   double Z5, double Z7, double tanb) {
+				complex<double> Z5, double Z7, double tanb) {
 
-  double Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda6,Lambda7,mHp;
-
+  double Lambda1,Lambda2,Lambda3,Lambda4,Lambda6,Lambda7,mHp;
+  complex<double> Lambda5;
   bool params_set = true;
   double vsmall = 1E-10;
   
@@ -453,13 +440,14 @@ bool THDM::set_param_hybrid_sba(double mh, double mH, double sba, double Z4,
    	Lambda2 = Lambda1 + 2*(Z6+Z7)/t2b;
   	
   	// Only one value of Lambda345 compatible with softly broken Z2 symmetry
-	Lambda345 = Lambda1+2.*Z6/t2b-(Z6-Z7)*t2b;  		
-	Lambda3 = Lambda345-Lambda4-Lambda5;
+	Lambda345 = Lambda1+2.*Z6/t2b-(Z6-Z7)*t2b;
+	// FIXME
+	// Lambda3 = Lambda345-Lambda4-Lambda5;
   } else {
     cout << "The point tanb=1 is problematic." << endl;
   }
 
-  double mHp2 = mH*mH*sba*sba + mh*mh*cba*cba-0.5*(Z4+Z5)*v2;
+  double mHp2 = 0; // = mH*mH*sba*sba + mh*mh*cba*cba-0.5*(Z4+Z5)*v2;
 
   if (mHp2>0) {
 	mHp = sqrt(mHp2);
@@ -492,7 +480,9 @@ bool THDM::set_inert(double m_h,double m_H, double m_A, double m_Hp, double lamb
   lambda[2]=lambda2;
   lambda[3]=lambda3;
   lambda[4]=(0.5*(m_H*m_H+m_A*m_A)-m_Hp*m_Hp)/v2;
-  lambda[5]=0.5*(m_H*m_H-m_A*m_A)/v2;
+  // FIXME
+  // lambda[5]=0.5*(m_H*m_H-m_A*m_A)/v2;
+  // lambda5 = ???
   lambda[6]=0.0;
   lambda[7]=0.0;
   beta=0;
@@ -939,13 +929,13 @@ void THDM::get_yukawas_lepton(double &rhoe, double &rhomu, double &rhotau) {
 
 
 void THDM::get_param_gen(double &lambda1, double &lambda2, double &lambda3,
-			 double &lambda4, double &lambda5, double &lambda6, 
-			 double &lambda7, double &m12_2,double &tan_beta) {
+			 double &lambda4, complex<double> &lambda5, double &lambda6, 
+			 double &lambda7, complex<double> &m12_2,double &tan_beta) {
   lambda1=lambda[1];
   lambda2=lambda[2];
   lambda3=lambda[3];
   lambda4=lambda[4];
-  lambda5=lambda[5];
+  lambda5=this->lambda5;
   lambda6=lambda[6];
   lambda7=lambda[7];
   tan_beta=tan(beta);
@@ -954,23 +944,24 @@ void THDM::get_param_gen(double &lambda1, double &lambda2, double &lambda3,
 
 
 void THDM::get_param_HHG(double &Lambda1, double &Lambda2, double &Lambda3,
-			 double &Lambda4, double &Lambda5, double &Lambda6, 
+			 double &Lambda4, complex<double> &Lambda5, double &Lambda6, 
 			 double &tan_beta) {
 
   double sb=sin(beta);
   double cb=cos(beta);
   double sbcb=sb*cb;
   double v2 = sm.get_v2();
-  double m12_2=get_m12_2();
+  complex<double> m12_2=get_m12_2();
 
-  double lambda345 = lambda[3]+lambda[4]+lambda[5];
+  double lambda345 = lambda[3]+lambda[4]+real(lambda5);
 
-  Lambda1 = 0.5*(lambda[1]-lambda345+2.*m12_2/(v2*sbcb));
-  Lambda2 = 0.5*(lambda[2]-lambda345+2.*m12_2/(v2*sbcb));
-  Lambda3 = 0.5*(lambda345-2.*m12_2/(v2*sbcb));
-  Lambda4 = 2.*m12_2/(v2*sbcb)-lambda[4]-lambda[5];
-  Lambda5 = 2.*m12_2/(v2*sbcb);
-  Lambda6 = 2.*m12_2/(v2*sbcb)-2.*lambda[5];
+  // FIXME
+  // Lambda1 = 0.5*(lambda[1]-lambda345+2.*m12_2/(v2*sbcb));
+  // Lambda2 = 0.5*(lambda[2]-lambda345+2.*m12_2/(v2*sbcb));
+  // Lambda3 = 0.5*(lambda345-2.*m12_2/(v2*sbcb));
+  // Lambda4 = 2.*m12_2/(v2*sbcb)-lambda[4]-lambda5;
+  // Lambda5 = 2.*m12_2/(v2*sbcb);
+  // Lambda6 = 2.*m12_2/(v2*sbcb)-2.*lambda5;
 
   tan_beta = tan(beta);
 }
@@ -978,7 +969,7 @@ void THDM::get_param_HHG(double &Lambda1, double &Lambda2, double &Lambda3,
 
 void THDM::get_param_phys(double &m_h,double &m_H, double &m_A, double &m_Hp,
 			  double &sba, double &lambda6, double &lambda7,
-			  double &m12_2,double &tan_beta) {
+			  complex<double> &m12_2,double &tan_beta) {
 
   lambda6=lambda[6];
   lambda7=lambda[7];
@@ -991,30 +982,31 @@ void THDM::get_param_phys(double &m_h,double &m_H, double &m_A, double &m_Hp,
   double ctb = 1./tb;
   double m_A2;
   m12_2=get_m12_2();
+  // FIXME
   if (tan_beta>0) {
-    m_A2=m12_2/sb/cb-0.5*v2*(2*lambda[5]+lambda[6]*ctb+lambda[7]*tb);
+    // m_A2=m12_2/sb/cb-0.5*v2*(2*lambda[5]+lambda[6]*ctb+lambda[7]*tb);
   } else { 
-    m_A2=m22_2+0.5*v2*(lambda[3]+lambda[4]-lambda[5]);
+    // m_A2=m22_2+0.5*v2*(lambda[3]+lambda[4]-lambda[5]);
   }
-  double m_Hp2  =  m_A2+0.5*v2*(lambda[5]-lambda[4]);
-  double M112   =  m_A2*sb2+v2*(lambda[1]*cb2+2.*lambda[6]*sb*cb+lambda[5]*sb2);
+  // double m_Hp2  =  m_A2+0.5*v2*(lambda5-lambda[4]);
+  // double M112   =  m_A2*sb2+v2*(lambda[1]*cb2+2.*lambda[6]*sb*cb+lambda5*sb2);
   double M122   = -m_A2*sb*cb+v2*((lambda[3]+lambda[4])*sb*cb+lambda[6]*cb2+lambda[7]*sb2);
-  double M222   =  m_A2*cb2+v2*(lambda[2]*sb2+2.*lambda[7]*sb*cb+lambda[5]*cb2);
-  double m_h2   =  0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
-  double m_H2   =  0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+  // double M222   =  m_A2*cb2+v2*(lambda[2]*sb2+2.*lambda[7]*sb*cb+lambda5*cb2);
+  // double m_h2   =  0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+  // double m_H2   =  0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
   
   sba = sinba;
 
   // Sanity checks. Masses set negative in case of troubles
-  if (m_h2>0)   m_h=sqrt(m_h2);   else m_h=-sqrt(-m_h2);
-  if (m_H2>0)   m_H=sqrt(m_H2);   else m_H=-sqrt(-m_H2);
-  if (m_A2>0)   m_A=sqrt(m_A2);   else m_A=-sqrt(-m_A2);
-  if (m_Hp2>0)  m_Hp=sqrt(m_Hp2); else m_Hp=-sqrt(-m_Hp2);
+  // if (m_h2>0)   m_h=sqrt(m_h2);   else m_h=-sqrt(-m_h2);
+  // if (m_H2>0)   m_H=sqrt(m_H2);   else m_H=-sqrt(-m_H2);
+  // if (m_A2>0)   m_A=sqrt(m_A2);   else m_A=-sqrt(-m_A2);
+  // if (m_Hp2>0)  m_Hp=sqrt(m_Hp2); else m_Hp=-sqrt(-m_Hp2);
 }
 
 
 void THDM::get_param_higgs(double &Lambda1, double &Lambda2, double &Lambda3,
-			   double &Lambda4, double &Lambda5, double &Lambda6, 
+			   double &Lambda4, complex<double> &Lambda5, double &Lambda6, 
 			   double &Lambda7, double &m_Hp) {
 
   double sb=sin(beta);
@@ -1030,33 +1022,36 @@ void THDM::get_param_higgs(double &Lambda1, double &Lambda2, double &Lambda3,
   double cb4=cb2*cb2;
   double tb=tan(beta);
 
-  double lambda345=lambda[3]+lambda[4]+lambda[5];
+  double lambda345=lambda[3]+lambda[4]+real(lambda5);
 
   // See hep-ph/0504050
   Lambda1 =  lambda[1]*cb4+lambda[2]*sb4+0.5*lambda345*s2b2+2.*s2b*(cb2*lambda[6]+sb2*lambda[7]);
   Lambda2 =  lambda[1]*sb4+lambda[2]*cb4+0.5*lambda345*s2b2-2.*s2b*(sb2*lambda[6]+cb2*lambda[7]);
   Lambda3 =  0.25*s2b2*(lambda[1]+lambda[2]-2*lambda345)+lambda[3]-s2b*c2b*(lambda[6]-lambda[7]);
   Lambda4 =  0.25*s2b2*(lambda[1]+lambda[2]-2*lambda345)+lambda[4]-s2b*c2b*(lambda[6]-lambda[7]);
-  Lambda5 =  0.25*s2b2*(lambda[1]+lambda[2]-2*lambda345)+lambda[5]-s2b*c2b*(lambda[6]-lambda[7]);
+  Lambda5 =  0.25*s2b2*(lambda[1]+lambda[2]-2*lambda345)+lambda5-s2b*c2b*(lambda[6]-lambda[7]);
   Lambda6 = -0.5*s2b*(lambda[1]*cb2-lambda[2]*sb2-lambda345*c2b)+cb*c3b*lambda[6]+sb*s3b*lambda[7];
   Lambda7 = -0.5*s2b*(lambda[1]*sb2-lambda[2]*cb2+lambda345*c2b)+sb*s3b*lambda[6]+cb*c3b*lambda[7];
 
-  double m12_2 = get_m12_2();
-  double m11_2 = m12_2*tb-0.5*v2*(lambda[1]*cb2+(lambda[3]+lambda[4]+lambda[5])*sb2+3.*lambda[6]*sb*cb+lambda[7]*sb2*tb);
-  double M22_2 = m11_2*sb2+m22_2*cb2+m12_2*s2b;
+  complex<double> m12_2 = get_m12_2();
+  // FIXME
+  double m11_2 = 0; // = m12_2*tb-0.5*v2*(lambda[1]*cb2+(lambda[3]+lambda[4]+lambda[5])*sb2+3.*lambda[6]*sb*cb+lambda[7]*sb2*tb);
+  double M22_2 = 0; // = m11_2*sb2+m22_2*cb2+m12_2*s2b;
   
   m_Hp=sqrt(M22_2+0.5*v2*Lambda3);
 }
 
 
 void THDM::get_param_hybrid(double &m_h, double &m_H, double &cba,
-			   double &Z4, double &Z5, double &Z7, double &tan_beta) {
+			    double &Z4, complex<double> &Z5, double &Z7, double &tan_beta) {
    
-   double Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda6,Lambda7,mHp;
+   double Lambda1,Lambda2,Lambda3,Lambda4,Lambda6,Lambda7,mHp;
+   complex<double> Lambda5;
    
    get_param_higgs(Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda6,Lambda7,mHp);
    
-   double mh,mH,mA,sinba,lam6,lam7,m12_2,tb;
+   double mh,mH,mA,sinba,lam6,lam7,tb;
+   complex<double> m12_2;
    
    get_param_phys(mh,mH,mA,mHp,sinba,lam6,lam7,m12_2,tb);
    if ((abs(lam6)>EPS)||(abs(lam7)>EPS)) {
@@ -1079,24 +1074,27 @@ void THDM::recalc_tan_beta(double tan_beta) {
 	// Only positive tan(beta) allowed
   if (tan_beta < 0) return;
 
-  double l1,l2,l3,l4,l5,l6,l7,m_Hp;
+  double l1,l2,l3,l4,l6,l7,m_Hp;
+  complex<double> l5;
   this->get_param_higgs(l1,l2,l3,l4,l5,l6,l7,m_Hp);
   lambda[1]=l1;
   lambda[2]=l2;
   lambda[3]=l3;
   lambda[4]=l4;
-  lambda[5]=l5;
+  lambda5=l5;
   lambda[6]=l6;
   lambda[7]=l7;
   beta=-atan(tan_beta);
-  m22_2=m_Hp*m_Hp-0.5*v2*l3;
-  double la1,la2,la3,la4,la5,la6,la7,ma_Hp;
+  // FIXME
+  // m22_2=m_Hp*m_Hp-0.5*v2*l3;
+  double la1,la2,la3,la4,la6,la7,ma_Hp;
+  complex<double> la5;
   this->get_param_higgs(la1,la2,la3,la4,la5,la6,la7,ma_Hp);
   lambda[1]=la1;
   lambda[2]=la2;
   lambda[3]=la3;
   lambda[4]=la4;
-  lambda[5]=la5;
+  lambda5=la5;
   lambda[6]=la6;
   lambda[7]=la7;
   double sb=sin(beta);
@@ -1104,7 +1102,7 @@ void THDM::recalc_tan_beta(double tan_beta) {
   double sb2=sb*sb;
   double cb=cos(beta);
   double cb2=cb*cb;
-  m22_2=-0.5*v2*l1*sb2+(m_Hp*m_Hp-0.5*v2*l3)*cb2+0.5*v2*l6*s2b;
+  // m22_2=-0.5*v2*l1*sb2+(m_Hp*m_Hp-0.5*v2*l3)*cb2+0.5*v2*l6*s2b;
   beta=atan(tan_beta);
 }
 
@@ -1486,7 +1484,8 @@ void THDM::get_coupling_hhh(int h1,int h2,int h3,complex <double> &c) {
   // Conventions are according to hep-ph/0602242
   complex <double> I(0.0,1.0);
   
-  double Z1,Z2,Z3,Z4,Z5,l6,l7,m_Hp;
+  double Z1,Z2,Z3,Z4,l6,l7,m_Hp;
+  complex<double> Z5;
   get_param_higgs(Z1,Z2,Z3,Z4,Z5,l6,l7,m_Hp);
   double Z6=-l6,Z7=-l7;
   double v=sm.get_v();
@@ -1543,7 +1542,8 @@ void THDM::get_coupling_hhhh(int h1,int h2,int h3,int h4,complex <double> &c) {
   // Conventions are according to hep-ph/0602242
   complex <double> I(0.0,1.0);
   
-  double Z1,Z2,Z3,Z4,Z5,l6,l7,m_Hp;
+  double Z1,Z2,Z3,Z4,l6,l7,m_Hp;
+  complex<double> Z5;
   get_param_higgs(Z1,Z2,Z3,Z4,Z5,l6,l7,m_Hp);
   double Z6=-l6,Z7=-l7;
   
@@ -1639,7 +1639,8 @@ double THDM::calc_unitarity() {
   
   double s2 = sqrt(2.);
 
-  double S21_data[] = { lambda[1],    lambda[5],    s2*lambda[6],
+  // FIXME
+  double S21_data[] = { lambda[1],    lambda[5],    s2*lambda[6], // lambda5
                         lambda[5],    lambda[2],    s2*lambda[7],
                         s2*lambda[6], s2*lambda[7], lambda[3]+lambda[4] };
 
@@ -1739,7 +1740,8 @@ bool THDM::check_perturbativity(double perturbativity_limit) {
 }
 
 bool THDM::check_stability() {
-  stability_params p={{lambda[0],lambda[1],lambda[2],lambda[3],lambda[4],lambda[5],lambda[6],lambda[7]},0.,M_PI/2.,M_PI/4.,0};
+	// FIXME
+  stability_params p={{lambda[0],lambda[1],lambda[2],lambda[3],lambda[4],lambda[5],lambda[6],lambda[7]},0.,M_PI/2.,M_PI/4.,0}; // lambda5
 
   // Check for gamma=0
   if (lambda[1]<0) return false;
@@ -1894,10 +1896,12 @@ void THDM::write_LesHouches(const char* file, bool fulldecay, bool couplings, bo
     return;
   }
 
-  double mh,mH,mA,mHp,sba,lambda6,lambda7,tan_beta,m12_2;
+  double mh,mH,mA,mHp,sba,lambda6,lambda7,tan_beta;
+  complex<double> m12_2;
   get_param_phys(mh,mH,mA,mHp,sba,lambda6,lambda7,m12_2,tan_beta);
   double cba = get_cba();
-  double l1,l2,l3,l4,l5,l6,l7;
+  double l1,l2,l3,l4,l6,l7;
+  complex<double> l5;
   get_param_gen(l1,l2,l3,l4,l5,l6,l7,m12_2,tan_beta);
 
   fprintf(output,"##################################################################\n");
@@ -1940,7 +1944,7 @@ fprintf(output,"Block MINPAR    # Model parameters\n");
   fprintf(output,"   12      % 16.8e   # lambda_2\n",l2);
   fprintf(output,"   13      % 16.8e   # lambda_3\n",l3);
   fprintf(output,"   14      % 16.8e   # lambda_4\n",l4);
-  fprintf(output,"   15      % 16.8e   # lambda_5\n",l5);
+  fprintf(output,"   15      (%16.8e,% 16.8e)   # lambda_5\n",real(l5), imag(l5));
   fprintf(output,"   16      % 16.8e   # lambda_6\n",l6);
   fprintf(output,"   17      % 16.8e   # lambda_7\n",l7);
   if (tan_beta!=0) {
@@ -2576,7 +2580,8 @@ void THDM::print_yukawas() {
 
 
 void THDM::print_param_gen() {
-  double lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7,tan_beta,m12_2;  
+  double lambda1,lambda2,lambda3,lambda4,lambda6,lambda7,tan_beta;
+  complex<double> lambda5, m12_2;
   get_param_gen(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7,m12_2,tan_beta);
 
   printf("\n2HDM parameters in generic basis:\n");
@@ -2592,9 +2597,11 @@ void THDM::print_param_gen() {
 }
 
 void THDM::print_param_hybrid() {
-  double mh,mH,cba,tb,Z4,Z5,Z7;  
+  double mh,mH,cba,tb,Z4,Z7;
+  complex<double> Z5;
   get_param_hybrid(mh,mH,cba,Z4,Z5,Z7,tb);
-  double lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7,tan_beta,m12_2;  
+  double lambda1,lambda2,lambda3,lambda4,lambda6,lambda7,tan_beta;
+  complex<double> lambda5, m12_2;
   get_param_gen(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7,m12_2,tan_beta);
 
   printf("\n2HDM parameters in Hybrid basis:\n");
@@ -2612,7 +2619,8 @@ void THDM::print_param_hybrid() {
 }
 
 void THDM::print_hdecay() {
-  double mh,mH,mA,mHp,sba,lambda6,lambda7,tan_beta,m12_2,alpha;
+  double mh,mH,mA,mHp,sba,lambda6,lambda7,tan_beta,alpha;
+  complex<double> m12_2;
   get_param_phys(mh,mH,mA,mHp,sba,lambda6,lambda7,m12_2,tan_beta);
 
   alpha = -asin(sba)+atan(tan_beta);
@@ -2627,14 +2635,15 @@ void THDM::print_hdecay() {
   printf(" MHH = %.8fD0\n", mH);
   printf(" MHA = %.8fD0\n", mA);
   printf(" MH+- = %.8fD0\n", mHp);
-  printf(" M12^2 = %.8fD0\n", m12_2);
+  printf(" M12^2 = (%.8f,%.8f)D0\n", real(m12_2), imag(m12_2));
   printf(" ****************************************************************************\n");
 
 }
 
 
 void THDM::print_param_HHG() {
-  double Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda6,tan_beta;
+  double Lambda1,Lambda2,Lambda3,Lambda4,Lambda6,tan_beta;
+  complex<double> Lambda5;
   get_param_HHG(Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda6,tan_beta);
 
   printf("\n2HDM parameters in Higgs Hunter's basis:\n");
@@ -2642,14 +2651,15 @@ void THDM::print_param_HHG() {
   printf(" Lambda_2: %12.5f\n",Lambda2);
   printf(" Lambda_3: %12.5f\n",Lambda3);
   printf(" Lambda_4: %12.5f\n",Lambda4);
-  printf(" Lambda_5: %12.5f\n",Lambda5);
+  printf(" Lambda_5: (%12.5f,%12.5f)\n",real(Lambda5), imag(Lambda5));
   printf(" Lambda_6: %12.5f\n",Lambda6);
   printf("tan(beta): %12.5f\n",tan_beta);
 }
 
 
 void THDM::print_param_phys() {
-  double mh,mH,mA,mHp,sba,lambda6,lambda7,tan_beta,m12_2;
+  double mh,mH,mA,mHp,sba,lambda6,lambda7,tan_beta;
+  complex<double> m12_2;
   get_param_phys(mh,mH,mA,mHp,sba,lambda6,lambda7,m12_2,tan_beta);
 
   printf("\n2HDM parameters in physical mass basis:\n");
@@ -2665,7 +2675,8 @@ void THDM::print_param_phys() {
 }
 
 void THDM::print_param_higgs() {
-  double Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda6,Lambda7,mHp;
+  double Lambda1,Lambda2,Lambda3,Lambda4,Lambda6,Lambda7,mHp;
+  complex<double> Lambda5;
   get_param_higgs(Lambda1,Lambda2,Lambda3,Lambda4,Lambda5,Lambda6,Lambda7,mHp);
 
   printf("\n2HDM parameters in Higgs basis:\n");
@@ -2673,14 +2684,14 @@ void THDM::print_param_higgs() {
   printf(" Lambda_2: %12.5f\n",Lambda2);
   printf(" Lambda_3: %12.5f\n",Lambda3);
   printf(" Lambda_4: %12.5f\n",Lambda4);
-  printf(" Lambda_5: %12.5f\n",Lambda5);
+  printf(" Lambda_5: (%12.5f,%12.5f)\n",real(Lambda5), imag(Lambda5));
   printf(" Lambda_6: %12.5f\n",Lambda6);
   printf(" Lambda_7: %12.5f\n",Lambda7);
   printf("     m_Hp: %12.5f\n",mHp);
 }
 
 
-double THDM::get_m12_2() {
+complex<double> THDM::get_m12_2() {
   //hep-ph/0207010
   double sb=sin(beta);
   double sb2=sb*sb;
@@ -2689,12 +2700,13 @@ double THDM::get_m12_2() {
   double tb=tan(beta);
   double ctb=1./tb;
   
-  double m12_2 = 0.;
+  complex<double> m12_2 = 0.;
 
+  // FIXME
   if (tb>0) {
-    m12_2=(m22_2+0.5*v2*(lambda[2]*sb2+(lambda[3]+lambda[4]+lambda[5])*cb2+lambda[6]*cb2*ctb+3.*lambda[7]*sb*cb))*tb;
+    // m12_2=(m22_2+0.5*v2*(lambda[2]*sb2+(lambda[3]+lambda[4]+lambda[5])*cb2+lambda[6]*cb2*ctb+3.*lambda[7]*sb*cb))*tb;
   } else {
-    m12_2=0.5*v2*lambda[6];
+    // m12_2=0.5*v2*lambda[6];
   }
 
   return m12_2;
@@ -2718,7 +2730,8 @@ double THDM::get_hmass(int h) {
 
   if ((h<1)||(h>4)) return 0.;
 
-  double mh[5],a,l6,l7,tb,m12_2;
+  double mh[5],a,l6,l7,tb;
+  complex<double> m12_2;
   get_param_phys(mh[1],mh[2],mh[3],mh[4],a,l6,l7,m12_2,tb);
   return mh[h];
 }
@@ -2726,7 +2739,8 @@ double THDM::get_hmass(int h) {
 
 double THDM::get_sba() {
 
-  double mh,mH,mA,mHp,sba,l6,l7,tb,m12_2;
+  double mh,mH,mA,mHp,sba,l6,l7,tb;
+  complex<double> m12_2;
   get_param_phys(mh,mH,mA,mHp,sba,l6,l7,m12_2,tb);
 
   return sba;
@@ -2740,7 +2754,8 @@ double THDM::get_cba() {
 
 double THDM::get_alpha() {
   
-  double mh,mH,mA,mHp,sba,l6,l7,tb,m12_2;
+  double mh,mH,mA,mHp,sba,l6,l7,tb;
+  complex<double> m12_2;
   get_param_phys(mh,mH,mA,mHp,sba,l6,l7,m12_2,tb);
 
   double beta = atan(tb);

@@ -1,7 +1,7 @@
 # Makefile for 2HDMC 
 
 # Choose your C++ compiler here (in general g++ on Linux systems):
-CC = g++
+CC = g++-4.9
 LDFLAGS=-lgsl -lgslcblas
 
 #Optimisation level, eg: -O3
